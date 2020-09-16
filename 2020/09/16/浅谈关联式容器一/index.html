@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.0.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="STL关联式容器可分为两大类，第一大类是以RB-tree为底层实现机制。先简要讲述重要的底层数据结构RB-tree。 众所周知关联式容器的存取效率较高，为了提供对数时间的元素插入和访问，底层实现采用了二叉搜索树，更进一步为了避免插入删除操作导致二叉搜索树不平衡情况而导致搜寻效率低下，引入了平衡二叉搜索树。 注：节点的数据结构(本文代码与SGI STL有一定出入，主要是为了理解细节，因此做了些简化)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅谈关联式容器一">
+<meta property="og:url" content="http://yoursite.com/2020/09/16/%E6%B5%85%E8%B0%88%E5%85%B3%E8%81%94%E5%BC%8F%E5%AE%B9%E5%99%A8%E4%B8%80/index.html">
+<meta property="og:site_name" content="DoubleQ&#39;s Blog">
+<meta property="og:description" content="STL关联式容器可分为两大类，第一大类是以RB-tree为底层实现机制。先简要讲述重要的底层数据结构RB-tree。 众所周知关联式容器的存取效率较高，为了提供对数时间的元素插入和访问，底层实现采用了二叉搜索树，更进一步为了避免插入删除操作导致二叉搜索树不平衡情况而导致搜寻效率低下，引入了平衡二叉搜索树。 注：节点的数据结构(本文代码与SGI STL有一定出入，主要是为了理解细节，因此做了些简化)">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/DoubleQ0726/ImageBed/master/img/20200903165134.png">
+<meta property="article:published_time" content="2020-09-16T04:59:06.000Z">
+<meta property="article:modified_time" content="2020-09-16T05:07:26.953Z">
+<meta property="article:author" content="DoubleQ">
+<meta property="article:tag" content="STL">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/DoubleQ0726/ImageBed/master/img/20200903165134.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/09/16/%E6%B5%85%E8%B0%88%E5%85%B3%E8%81%94%E5%BC%8F%E5%AE%B9%E5%99%A8%E4%B8%80/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>浅谈关联式容器一 | DoubleQ's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">DoubleQ's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">每天进步一点点！</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/16/%E6%B5%85%E8%B0%88%E5%85%B3%E8%81%94%E5%BC%8F%E5%AE%B9%E5%99%A8%E4%B8%80/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="DoubleQ">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DoubleQ's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          浅谈关联式容器一
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-09-16 12:59:06 / 修改时间：13:07:26" itemprop="dateCreated datePublished" datetime="2020-09-16T12:59:06+08:00">2020-09-16</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>STL关联式容器可分为两大类，第一大类是以<strong>RB-tree</strong>为底层实现机制。先简要讲述重要的底层数据结构RB-tree。</p>
+<p>众所周知关联式容器的存取效率较高，为了提供对数时间的元素插入和访问，底层实现采用了二叉搜索树，更进一步为了避免插入删除操作导致二叉搜索树不平衡情况而导致搜寻效率低下，引入了<strong>平衡二叉搜索树</strong>。</p>
+<p>注：节点的数据结构(本文代码与SGI STL有一定出入，主要是为了理解细节，因此做了些简化)。</p>
+<h4 id="AVL-tree"><a href="#AVL-tree" class="headerlink" title="AVL-tree"></a>AVL-tree</h4><p>AVL tree要求任何节点的左右子树高度相差最多为1。</p>
+<p>插入操作使得平衡被破坏，主要有以下4种方式：</p>
+<p><strong>1. 插入点位于X的左子节点的左子树—左左</strong></p>
+<p><strong>2.插入点位于X的右子节点的右子树—右右</strong></p>
+<p><strong>3.插入点位于X的左子节点的右子树—左右</strong></p>
+<p><strong>4.插入点位于X的右子节点的左子树—右左</strong></p>
+<p>对于恢复平衡可以采用单旋转和双旋转，这里不具体展开。主要还是介绍容器底层需要用到的红黑树。</p>
+<h4 id="RB-tree"><a href="#RB-tree" class="headerlink" title="RB-tree"></a>RB-tree</h4><p>红黑树的定义：</p>
+<p><strong>1.每个节点不是红色就是黑色</strong></p>
+<p><strong>2.根节点为黑色</strong></p>
+<p><strong>3.如果节点为红，其子节点必须为黑(父子两节点不得同时为红，但可同时为黑)</strong></p>
+<p><strong>4.任一节点至NULL(树尾端)的任何路径，所含之黑节点数必须相同</strong></p>
+<p>由以上规则可得出新增节点必须为红色，新增节点的父节点必须为黑，但叶子节点不一定为红，因为调整之后可以为黑。</p>
+<p>对于插入节点，一种有效调整树的节点位置的方法为：</p>
+<p>对于新增节点，只要沿着新增节点的路径看到某个节点的两个子节点皆为红色，就把该节点改为红色，并把两个子节点改为黑色，然后再向上检查，如果还是有父子节点都为红色，那么进行单旋转或者双旋转调整以满足要求。</p>
+<h5 id="RB-tree的节点设计"><a href="#RB-tree的节点设计" class="headerlink" title="RB-tree的节点设计"></a>RB-tree的节点设计</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">rb_tree_node_base</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">typedef</span> <span class="keyword">bool</span> color_type;</span><br><span class="line">    <span class="keyword">typedef</span> rb_tree_node_base* base_ptr;</span><br><span class="line">    </span><br><span class="line">    color_type     color;    <span class="comment">//节点颜色</span></span><br><span class="line">    base_ptr     parent;    <span class="comment">//RB-tree的许多操作都用到了父节点</span></span><br><span class="line">    base_ptr     left;    <span class="comment">//左子节点</span></span><br><span class="line">    base_ptr    right;    <span class="comment">//右子节点</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">Value</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">struct</span> <span class="title">rb_tree_node</span> :</span> <span class="keyword">public</span> rb_tree_node_base</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">typedef</span> rb_tree_node&lt;Value&gt;* link_type;</span><br><span class="line">    Value value_field;    <span class="comment">//节点值            </span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h5 id="RB-tree的迭代器"><a href="#RB-tree的迭代器" class="headerlink" title="RB-tree的迭代器"></a>RB-tree的迭代器</h5><p>首先RB-tree的迭代器为双向迭代器，但不具备随即定位能力。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//红黑树的迭代器++、--操作完全按照二叉搜索树的节点排列法则</span></span><br><span class="line"><span class="comment">//下面给出具体的++、--实现</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">rb_tree_base_iterator</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    base_ptr node;    <span class="comment">//与容器的节点产生连结关系</span></span><br><span class="line">    <span class="comment">//++操作</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">increment</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;    </span><br><span class="line">        <span class="comment">//如果存在右子节点，则向右走后一直向左走，即可找到下一个节点</span></span><br><span class="line">        <span class="keyword">if</span> (node-&gt;right != <span class="literal">nullptr</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            node = node-&gt;right;</span><br><span class="line">            <span class="keyword">while</span> (node-&gt;left != <span class="literal">nullptr</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                node = node-&gt;left;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            base_ptr y = node-&gt;parent;</span><br><span class="line">            <span class="keyword">while</span> (node == y-&gt;right)    <span class="comment">//与header有关，边界情况</span></span><br><span class="line">            &#123;</span><br><span class="line">                node = y;</span><br><span class="line">                y = y-&gt;parent;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (node-&gt;right != y)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">//如果当前节点没有右子节点，且当前节点为其父节点的左子节点，那么比其大的节点即为其父节点</span></span><br><span class="line">                node = y;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">decrement</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment">//当node为header时，边界情况</span></span><br><span class="line">        <span class="keyword">if</span> (node-&gt;color == red &amp;&amp; node-&gt;parent-&gt;parent)</span><br><span class="line">        &#123;</span><br><span class="line">            node-&gt;node-&gt;right;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (node-&gt;left != <span class="literal">nullptr</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            base_ptr y = node-&gt;left;</span><br><span class="line">            <span class="keyword">while</span> (y-&gt;right != <span class="literal">nullptr</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                y = y-&gt;right;</span><br><span class="line">            &#125;</span><br><span class="line">            node = y;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            base_ptr y = node-&gt;parent;</span><br><span class="line">            <span class="keyword">while</span> (node == y-&gt;left)        <span class="comment">//与header有关，边界情况</span></span><br><span class="line">            &#123;</span><br><span class="line">                node = y;</span><br><span class="line">                y = y-&gt;prent;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//如果当前节点没有左子节点，且当前节点为其父节点的右子节点，那么比其小的节点即为其父节点</span></span><br><span class="line">            node = y;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>STL在设计红黑树时，加了一个实现上的小技巧，即header头节点。header节点为红色，用于区分根节点。且header和root互为对方的父节点，左子节点指向最小节点，右子节点指向最大节点。</p>
+<p><img src="https://raw.githubusercontent.com/DoubleQ0726/ImageBed/master/img/20200903165134.png"></p>
+<p>至此有了节点结构和迭代器，红黑树的数据结构也可以得到了。</p>
+<p>为了与STL标准一致，RB-tree也有begin()和end()函数，由header实现。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">iterator <span class="title">begin</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> header-&gt;left;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">iterator <span class="title">end</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> header;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于set、multiset、map、multimap底层都采用红黑树来实现，其主要操作都调用了RB-tree的成员函数。</p>
+<h5 id="set"><a href="#set" class="headerlink" title="set"></a>set</h5><p>set的特性是所有元素的键值会被自动排序，其实值就是键值，set不允许由两个元素有相同的键值。因为其底层调用了RB-tree的insert_unique函数。</p>
+<h5 id="multiset"><a href="#multiset" class="headerlink" title="multiset"></a>multiset</h5><p>multiset的特性与set的唯一区别是其允许有重复的元素存在，底层调用了RB-tree的insert_equal函数。</p>
+<h5 id="map"><a href="#map" class="headerlink" title="map"></a>map</h5><p>map的特性是所有元素都会根据元素的键值自动被排序。其所有元素都是pair，同时拥有实值(value)和键值(key)，pair的定义为：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T1</span>, <span class="title">class</span> <span class="title">T2</span>&gt;</span></span><br><span class="line"><span class="class"><span class="title">struct</span> <span class="title">pair</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="keyword">typedef</span> T1 first_type;</span><br><span class="line">    <span class="keyword">typedef</span> T2 second_type;</span><br><span class="line">    T1 first;</span><br><span class="line">    T2 second;</span><br><span class="line">    <span class="built_in">pair</span>() : first(T1()), second(T2()) &#123;&#125;</span><br><span class="line">    <span class="built_in">pair</span>(<span class="keyword">const</span> T1 &amp;a, <span class="keyword">const</span> T2 &amp;b) : first(a), second(b) &#123;&#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>map不允许由两个元素有相同的键值。因为其底层调用了RB-tree的insert_unique函数。map与set的主要区别即为map的元素是pair。</p>
+<h5 id="multimap"><a href="#multimap" class="headerlink" title="multimap"></a>multimap</h5><p>multimap的特性与map的唯一区别是其允许有重复的元素存在，底层调用了RB-tree的insert_equal函数。</p>
+<h4 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h4><p>《STL源码剖析》</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/STL/" rel="tag"># STL</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/09/11/%E6%B5%85%E8%B0%88STL-heap/" rel="prev" title="浅谈STL heap">
+      <i class="fa fa-chevron-left"></i> 浅谈STL heap
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/09/16/%E6%B5%85%E8%B0%88%E5%85%B3%E8%81%94%E5%BC%8F%E5%AE%B9%E5%99%A8%E4%BA%8C/" rel="next" title="浅谈关联式容器二">
+      浅谈关联式容器二 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#AVL-tree"><span class="nav-number">1.</span> <span class="nav-text">AVL-tree</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RB-tree"><span class="nav-number">2.</span> <span class="nav-text">RB-tree</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#RB-tree%E7%9A%84%E8%8A%82%E7%82%B9%E8%AE%BE%E8%AE%A1"><span class="nav-number">2.1.</span> <span class="nav-text">RB-tree的节点设计</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#RB-tree%E7%9A%84%E8%BF%AD%E4%BB%A3%E5%99%A8"><span class="nav-number">2.2.</span> <span class="nav-text">RB-tree的迭代器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#set"><span class="nav-number">2.3.</span> <span class="nav-text">set</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#multiset"><span class="nav-number">2.4.</span> <span class="nav-text">multiset</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#map"><span class="nav-number">2.5.</span> <span class="nav-text">map</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#multimap"><span class="nav-number">2.6.</span> <span class="nav-text">multimap</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">3.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">DoubleQ</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">标签</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/DoubleQ0726" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;DoubleQ0726" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DoubleQ</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
