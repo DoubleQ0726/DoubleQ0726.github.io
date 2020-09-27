@@ -156,6 +156,124 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/27/C-%E6%96%87%E4%BB%B6IO/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="DoubleQ">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="DoubleQ's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/09/27/C-%E6%96%87%E4%BB%B6IO/" class="post-title-link" itemprop="url">C++文件IO</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-09-27 21:54:40 / 修改时间：21:55:26" itemprop="dateCreated datePublished" datetime="2020-09-27T21:54:40+08:00">2020-09-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C/" itemprop="url" rel="index"><span itemprop="name">C++</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>在项目中可能频繁使用文件IO，打开文件、读文件、写文件等操作。因此本文对常用的几种方法进行记录。避免使用时混淆。</p>
+<h4 id="UNIX-风格"><a href="#UNIX-风格" class="headerlink" title="UNIX 风格"></a>UNIX 风格</h4><p>UNIX系统中大多数文件IO只需用到5个函数。这些函数通常被称为<strong>不带缓冲的IO</strong>，即都会调用内核中的一个系统调用。</p>
+<h5 id="open"><a href="#open" class="headerlink" title="open"></a>open</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">open</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *path, <span class="keyword">int</span> oflag, ...)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">open</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">const</span> <span class="keyword">char</span> *path, <span class="keyword">int</span> oflag, ...)</span></span>;</span><br><span class="line"><span class="comment">//第三个参数为...,对于open函数而言，仅当创建新文件时才使用最后一个参数</span></span><br><span class="line"><span class="comment">//若调用成功，返回文件描述符；若出错，返回-1</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="close"><a href="#close" class="headerlink" title="close"></a>close</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">close</span><span class="params">(<span class="keyword">int</span> fd)</span></span>;</span><br><span class="line"><span class="comment">//若调用成功，返回0；若出错，返回-1</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="read"><a href="#read" class="headerlink" title="read"></a>read</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">ssize_t</span> <span class="title">read</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">void</span> *buf, <span class="keyword">size_t</span> nbytes)</span></span>;</span><br><span class="line"><span class="comment">//将fd所对应文件的内容读到buf中</span></span><br><span class="line"><span class="comment">//返回值：读到的字节数，若已到文件末尾，返回0；若出错，返回-1</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="write"><a href="#write" class="headerlink" title="write"></a>write</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">ssize_t</span> <span class="title">write</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">void</span> *buf, <span class="keyword">size_t</span> nbytes)</span></span>;</span><br><span class="line"><span class="comment">//将buf中的内容写到fd所对应文件中</span></span><br><span class="line"><span class="comment">//返回值：读到的字节数，若已到文件末尾，返回0；若出错，返回-1</span></span><br></pre></td></tr></table></figure>
+
+<p>对于普通文件，写操作从文件的当前偏移量处开始。如果在打开该文件时，指定了O_APPEND选项，则在每次写操作之前，将文件偏移量设置在文件的当前结尾处。在一次成功写之后，该文件偏移量增加实际写的字节数。</p>
+<h5 id="lseek"><a href="#lseek" class="headerlink" title="lseek"></a>lseek</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">off_t</span> <span class="title">lseek</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">off_t</span> offset, <span class="keyword">int</span> whence)</span></span>;</span><br><span class="line"><span class="comment">//为文件设置偏移量，默认为0</span></span><br><span class="line"><span class="comment">//若调用成功，返回新的文件偏移量；若出错，返回-1</span></span><br><span class="line"><span class="comment">//对参数offset的解释与参数whence有关</span></span><br><span class="line"><span class="comment">//whence为SEEK_SET，则将文件偏移量设置为距文件开始处offset个字节</span></span><br><span class="line"><span class="comment">//whence为SEEK_CUR，则将文件偏移量设置为当前值加offset，offset可正可负</span></span><br><span class="line"><span class="comment">//whence为SEEK_END，则将文件偏移量设置为文件长度加offset，offset可正可负</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="C-标准IO库风格"><a href="#C-标准IO库风格" class="headerlink" title="C 标准IO库风格"></a>C 标准IO库风格</h4><p>UNIX风格的IO函数都是围绕文件描述符展开的，成功打开一个文件便返回一个文件描述符，该文件描述符用于后续的文件IO操作。而标准IO库是围绕流展开的，成功打开一个文件便有一个流与之相关联。</p>
+<p>对进程预定义了3个流，即标准输入、标准输出、标准错误流，对应于文件描述符的STDIN_FILENO、STDOUT_FILENO、STDERR_FILENO。</p>
+<p>标准IO库为了提高效率，提供了带缓冲的IO，这样可以减少read、write系统调用的次数。</p>
+<h5 id="3种标准IO缓冲"><a href="#3种标准IO缓冲" class="headerlink" title="3种标准IO缓冲"></a>3种标准IO缓冲</h5><h6 id="全缓冲"><a href="#全缓冲" class="headerlink" title="全缓冲"></a>全缓冲</h6><p>真正的IO操作是在标准IO缓冲区填满之后执行，可以通过手动调用flush将IO缓冲区内容写入磁盘。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">fflush</span><span class="params">(FILE *fp)</span></span>;</span><br><span class="line"><span class="comment">//返回值：成功返回0；失败返回EOF</span></span><br><span class="line"><span class="comment">//强制冲刷一个流，使所有未写数据都传入内核。fp为null则表示冲刷所有流</span></span><br></pre></td></tr></table></figure>
+
+<h6 id="行缓冲"><a href="#行缓冲" class="headerlink" title="行缓冲"></a>行缓冲</h6><p>当在输入输出种遇到换行符时，标准IO库执行真正的IO操作。但由于标准IO库来收集每一行的缓冲区长度是固定的，因此只要填满缓冲区，即使未遇到换行符也将IO操作。</p>
+<h6 id="不带缓冲"><a href="#不带缓冲" class="headerlink" title="不带缓冲"></a>不带缓冲</h6><p>顾名思义不需要缓冲，直接执行IO操作，一般标准错误流stderr是不带缓冲的，为了能将错误即使显示。</p>
+<h6 id="更改缓冲类型函数"><a href="#更改缓冲类型函数" class="headerlink" title="更改缓冲类型函数"></a>更改缓冲类型函数</h6><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">setbuf</span><span class="params">(FILE *<span class="keyword">restrict</span> fp, <span class="keyword">char</span> *<span class="keyword">restrict</span> buf)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">setbuf</span><span class="params">(FILE *<span class="keyword">restrict</span> fp, <span class="keyword">char</span> *<span class="keyword">restrict</span> buf, <span class="keyword">int</span> mode, <span class="keyword">size_t</span> <span class="built_in">size</span>)</span></span>;</span><br><span class="line"><span class="comment">//返回值：成功返回0；失败返回非0</span></span><br><span class="line"><span class="comment">//fp所对应的文件流，FILE *文件指针</span></span><br><span class="line"><span class="comment">//buf可自定义缓冲区，也可由IO库自动分配</span></span><br><span class="line"><span class="comment">//mode可以精确指定哪种缓冲(_IOFBF、_IOLBF、_IONBF)</span></span><br><span class="line"><span class="comment">//size指定缓冲区大小</span></span><br><span class="line"><span class="comment">//restrict关键字告诉编译器指针是访问一个数据对象的唯一且初始的方式</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/DoubleQ0726/ImageBed/master/img/20200912153722.png"></p>
+<h5 id="fopen"><a href="#fopen" class="headerlink" title="fopen"></a>fopen</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function">FILE *<span class="title">fopen</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *<span class="keyword">restrict</span> pathname, <span class="keyword">const</span> <span class="keyword">char</span> *<span class="keyword">restrict</span> type)</span></span>;</span><br><span class="line"><span class="comment">//返回值：成功则返回文件指针；失败则返回nullptr</span></span><br></pre></td></tr></table></figure>
+
+<p>type参数指定对该IO流的读写方式。</p>
+<p><img src="https://raw.githubusercontent.com/DoubleQ0726/ImageBed/master/img/20200912160445.png"></p>
+<h5 id="fread-fwrite"><a href="#fread-fwrite" class="headerlink" title="fread/fwrite"></a>fread/fwrite</h5><p>二进制IO，可以读写一个<strong>二进制数组</strong>，或者读写一个<strong>结构体</strong>。对于读取文件来说很方便。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">size_t</span> <span class="title">fread</span><span class="params">(<span class="keyword">void</span> *<span class="keyword">restrict</span> ptr, <span class="keyword">size_t</span> <span class="built_in">size</span>, <span class="keyword">size_t</span> nobj, FILE *<span class="keyword">restrict</span> fp)</span></span>;</span><br><span class="line"><span class="comment">//从文件指针所指的流对象中读取一定字节数据到ptr所指内存中</span></span><br><span class="line"><span class="comment">//返回值：读的对象数(&lt;= nobj)</span></span><br><span class="line"><span class="comment">//size表示对象所占的字节数，用sizeof()计算</span></span><br><span class="line"><span class="comment">//nobj表示对象的个数</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">size_t</span> <span class="title">fwrite</span><span class="params">(<span class="keyword">const</span> <span class="keyword">void</span> *<span class="keyword">restrict</span> ptr, <span class="keyword">size_t</span> <span class="built_in">size</span>, <span class="keyword">size_t</span> nobj, FILE *<span class="keyword">restrict</span> fp)</span></span>;</span><br><span class="line"><span class="comment">//将ptr所指的对象数据写入到文件指针所指的流对象中</span></span><br><span class="line"><span class="comment">//返回值：写的对象数</span></span><br><span class="line"><span class="comment">//size表示对象所占的字节数，用sizeof()计算</span></span><br><span class="line"><span class="comment">//nobj表示对象的个数</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="fwide"><a href="#fwide" class="headerlink" title="fwide"></a>fwide</h5><p>用于设置流的<strong>定向</strong>，其中流的定向有宽定向和字节定向。宽定向即为一个字符可以用多个字节表示。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;wchar.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">fwide</span><span class="params">(FILE *fp, <span class="keyword">int</span> mode)</span></span>;</span><br><span class="line"><span class="comment">//返回值：若流是宽定向的返回正值；字节定向则返回负值；未定向则返回0</span></span><br><span class="line"><span class="comment">//mode为正，即设置为宽定向</span></span><br><span class="line"><span class="comment">//mode为负，即设置为字节定向</span></span><br><span class="line"><span class="comment">//mode为0，即不设置流的定向，但返回标识该流定向的值</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>注意</strong>：fwide函数不改变已定向的流的定向，且没有出错返回。因此在调用前最好清除errno，函数返回时在检查errno。</p>
+<h4 id="C-风格IO"><a href="#C-风格IO" class="headerlink" title="C++风格IO"></a>C++风格IO</h4><p>C++头文件fstream定义了三个类型来支持文件IO，fstream从一个给定文件读取数据，ofstream像一个给性文件写入数据，以及fstream可以读写给定文件。</p>
+<h5 id="open-1"><a href="#open-1" class="headerlink" title="open"></a>open</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fstream&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">explicit</span> <span class="title">ifstream</span> <span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* filename, ios_base::openmode mode = ios_base::in)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">explicit</span> <span class="title">ifstream</span> <span class="params">(<span class="keyword">const</span> <span class="built_in">string</span>&amp; filename, ios_base::openmode mode = ios_base::in)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">open</span> <span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* filename,  ios_base::openmode mode = ios_base::in)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">open</span> <span class="params">(<span class="keyword">const</span> <span class="built_in">string</span>&amp; filename,  ios_base::openmode mode = ios_base::in)</span></span>;</span><br><span class="line"><span class="comment">//可以在构造对象时直接与文件关联</span></span><br><span class="line"><span class="comment">//可以先定义一个文件流对象，再用成员函数open打开一个文件</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">close</span><span class="params">()</span></span>;   <span class="comment">//关闭文件流</span></span><br></pre></td></tr></table></figure>
+
+<p>rdbuf()可以实现一个流对象指向的内容用另一个流对象来输出。</p>
+<p>C++风格主要使用fstream得到文件流，并使用rdbuf()将流内容输入到string流中，最后读取(字符)数据。</p>
+<h5 id="案例-读取文件"><a href="#案例-读取文件" class="headerlink" title="案例(读取文件)"></a>案例(读取文件)</h5><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sstream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fstream&gt;</span></span></span><br><span class="line"><span class="built_in">std</span>::fstream fileStream;</span><br><span class="line">fileName.<span class="built_in">open</span>(<span class="string">&quot;1.txt&quot;</span>, <span class="built_in">std</span>::ftream::in); <span class="comment">//以读的方式打开</span></span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">stringstream</span> strStream;</span><br><span class="line">strStream &lt;&lt; fileStream.rdbuf();</span><br><span class="line">fileStream.<span class="built_in">close</span>();</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span> context = strStream.str();</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>以上三种方法各有用途。就我个人而言，在Linux下编写网络程序代码会使用第一种方法；从二进制文件读取纯数据会使用第二种方法；从文件中读取内容会使用第三种方法。</p>
+<h4 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h4><p>《UNIX环境高级编程》</p>
+<p>《C++Primer》</p>
+<p><a target="_blank" rel="noopener" href="http://www.cplusplus.com/reference/fstream">http://www.cplusplus.com/reference/fstream</a></p>
+<p><a target="_blank" rel="noopener" href="http://www.cplusplus.com/reference/sstream/stringstream/">http://www.cplusplus.com/reference/sstream/stringstream</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/27/LeetCode%E7%B2%BE%E9%80%89%E9%A2%98%E7%9B%AE/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -730,12 +848,12 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">7</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">分类</span>
       </div>
       <div class="site-state-item site-state-tags">
