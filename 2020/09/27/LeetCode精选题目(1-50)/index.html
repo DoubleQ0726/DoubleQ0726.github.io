@@ -22,8 +22,8 @@
 
   <meta name="description" content="LeetCode精选题目(1-50)来源：力扣（LeetCode） 官网地址 盛最多水的容器题目描述给你 n 个非负整数 a1，a2，…，an，每个数代表坐标中的一个点 (i, ai) 。在坐标内画 n 条垂直线，垂直线 i 的两个端点分别为 (i, ai) 和 (i, 0)。找出其中的两条线，使得它们与 x 轴共同构成的容器可以容纳最多的水。 说明：你不能倾斜容器，且 n 的值至少为 2。 示例">
 <meta property="og:type" content="article">
-<meta property="og:title" content="LeetCode精选题目">
-<meta property="og:url" content="http://yoursite.com/2020/09/27/LeetCode%E7%B2%BE%E9%80%89%E9%A2%98%E7%9B%AE/index.html">
+<meta property="og:title" content="LeetCode精选题目(1-50)">
+<meta property="og:url" content="http://yoursite.com/2020/09/27/LeetCode%E7%B2%BE%E9%80%89%E9%A2%98%E7%9B%AE(1-50)/index.html">
 <meta property="og:site_name" content="DoubleQ&#39;s Blog">
 <meta property="og:description" content="LeetCode精选题目(1-50)来源：力扣（LeetCode） 官网地址 盛最多水的容器题目描述给你 n 个非负整数 a1，a2，…，an，每个数代表坐标中的一个点 (i, ai) 。在坐标内画 n 条垂直线，垂直线 i 的两个端点分别为 (i, ai) 和 (i, 0)。找出其中的两条线，使得它们与 x 轴共同构成的容器可以容纳最多的水。 说明：你不能倾斜容器，且 n 的值至少为 2。 示例">
 <meta property="og:locale" content="zh_CN">
@@ -35,12 +35,12 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/DoubleQ0726/ImageBed/master/img/20201019150538.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/DoubleQ0726/ImageBed/master/img/20201019150622.png">
 <meta property="article:published_time" content="2020-09-27T08:22:47.000Z">
-<meta property="article:modified_time" content="2020-10-28T02:03:41.310Z">
+<meta property="article:modified_time" content="2020-10-28T03:02:25.956Z">
 <meta property="article:author" content="DoubleQ">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://raw.githubusercontent.com/DoubleQ0726/ImageBed/master/img/20200927165703.png">
 
-<link rel="canonical" href="http://yoursite.com/2020/09/27/LeetCode%E7%B2%BE%E9%80%89%E9%A2%98%E7%9B%AE/">
+<link rel="canonical" href="http://yoursite.com/2020/09/27/LeetCode%E7%B2%BE%E9%80%89%E9%A2%98%E7%9B%AE(1-50)/">
 
 
 <script id="page-configurations">
@@ -53,7 +53,7 @@
   };
 </script>
 
-  <title>LeetCode精选题目 | DoubleQ's Blog</title>
+  <title>LeetCode精选题目(1-50) | DoubleQ's Blog</title>
   
 
 
@@ -169,7 +169,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/27/LeetCode%E7%B2%BE%E9%80%89%E9%A2%98%E7%9B%AE/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/09/27/LeetCode%E7%B2%BE%E9%80%89%E9%A2%98%E7%9B%AE(1-50)/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -182,7 +182,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          LeetCode精选题目
+          LeetCode精选题目(1-50)
         </h1>
 
         <div class="post-meta">
@@ -199,7 +199,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-10-28 10:03:41" itemprop="dateModified" datetime="2020-10-28T10:03:41+08:00">2020-10-28</time>
+                <time title="修改时间：2020-10-28 11:02:25" itemprop="dateModified" datetime="2020-10-28T11:02:25+08:00">2020-10-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -773,7 +773,7 @@
 <p>方法一</p>
 <p>本题可以采用哈希表，将链表中的节点存入哈希表，如果当前节点在哈希表中已经存在，说明形成了一个环。</p>
 <p>方法二</p>
-<p>可以使用快慢指针，类似于龟兔赛跑，慢指针一次走一个位置，快指针一次走两个位置，如果慢指针等于快指针，说明形成了一个环。</p>
+<p>可以使用快慢指针，类似于龟兔赛跑，慢指针一次走一个位置，快指针一次走两个位置，如果慢指针等于快指针，说明形成了一个环，注意这里采用的快慢指针不在同一起跑点出发(因为后续循环条件)。</p>
 <p>代码如下</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for singly-linked list.</span></span><br><span class="line"><span class="comment"> * struct ListNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     ListNode *next;</span></span><br><span class="line"><span class="comment"> *     ListNode(int x) : val(x), next(NULL) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">//哈希表</span></span><br><span class="line">    <span class="comment">// bool hasCycle(ListNode *head) </span></span><br><span class="line">    <span class="comment">// &#123;</span></span><br><span class="line">    <span class="comment">//     while (head)</span></span><br><span class="line">    <span class="comment">//     &#123;</span></span><br><span class="line">    <span class="comment">//         if (s.count(head))</span></span><br><span class="line">    <span class="comment">//             return true;</span></span><br><span class="line">    <span class="comment">//         else</span></span><br><span class="line">    <span class="comment">//         &#123;</span></span><br><span class="line">    <span class="comment">//             s.insert(head);</span></span><br><span class="line">    <span class="comment">//             head = head-&gt;next;</span></span><br><span class="line">    <span class="comment">//         &#125;</span></span><br><span class="line">    <span class="comment">//     &#125;</span></span><br><span class="line">    <span class="comment">//     return false;</span></span><br><span class="line">    <span class="comment">// &#125;</span></span><br><span class="line">    <span class="comment">// unordered_set&lt;ListNode *&gt; s;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">//快慢指针</span></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">hasCycle</span><span class="params">(ListNode *head)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!head || !head-&gt;next)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        ListNode *slow = head;</span><br><span class="line">        ListNode *fast = head-&gt;next;</span><br><span class="line">        <span class="keyword">while</span> (slow != fast)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (!fast || !fast-&gt;next)</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            slow = slow-&gt;next;</span><br><span class="line">            fast = fast-&gt;next-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
@@ -873,7 +873,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-count">8</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
